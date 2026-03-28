@@ -4,12 +4,16 @@ run = "cargo build --release"
 
 [tasks.copy-bin]
 depends = ["build"]
-run = "cp target/release/sync_highlights ~/bin"
+run = "cp -v target/release/sync_highlights ~/bin"
 
 [tasks.copy-man]
 depends = ["build"]
-run = "cp target/release/sync_highlights.1 ~/man/man1"
+run = "cp -v target/release/sync_highlights.1 ~/man/man1"
+
+[tasks.copy-completions]
+depends = ["build"]
+run = "cp -v target/release/sync_highlights.fish ~/.config/fish/completions"
 
 [tasks.install]
 alias = "i"
-depends = ["copy-bin", "copy-man"]
+depends = ["copy-bin", "copy-man", "copy-completions"]

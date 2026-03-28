@@ -9,8 +9,11 @@ edition = "2021"
 anyhow = "1.0.95"
 clap = { version = "4.5.28", features = ["derive"] }
 gray_matter = "0.2.8"
+serde = { version = "1", features = ["derive"] }
+ureq = { version = "2", features = ["json"] }
 walkdir = "2.5.0"
 
 [build-dependencies]
 clap = { version = "4.5.28", features = ["derive"] }
+clap_complete = "4"
 clap_mangen = "0.2.26"

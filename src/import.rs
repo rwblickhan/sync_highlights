@@ -94,7 +94,7 @@ fn write_highlight_file(source_dir: &Path, link: &Link, markdown: &str) -> Resul
     Ok(file_path)
 }
 
-pub fn import(source: &Path, dry_run: bool) -> Result<()> {
+pub fn import(source: &Path, dry_run: bool, verbose: bool) -> Result<()> {
     let base_url = op_read("op://Private/GoodLinks/base_url")
         .context("Failed to read GoodLinks endpoint from 1Password")?;
     let token = op_read("op://Private/GoodLinks/token")
@@ -104,19 +104,25 @@ pub fn import(source: &Path, dry_run: bool) -> Result<()> {
         .with_context(|| format!("Failed to create source directory {}", source.display()))?;
 
     let links = fetch_highlighted_links(&base_url, &token)?;
-    println!("Found {} highlighted links", links.len());
+    if verbose {
+        println!("Found {} highlighted links", links.len());
+    }
 
     let agent = ureq::AgentBuilder::new().build();
     for link in &links {
         let Some(markdown) = fetch_highlights_export(&agent, &base_url, &token, &link.id)? else {
             continue;
         };
-        let title = link.title.as_deref().unwrap_or(&link.id);
-        if dry_run {
-            println!("Would write highlights for: {}", title);
-        } else {
-            let path = write_highlight_file(source, link, &markdown)?;
-            println!("Wrote {}", path.display());
+        if verbose {
+            let title = link.title.as_deref().unwrap_or(&link.id);
+            if dry_run {
+                println!("Would fetch highlights for: {}", title);
+            } else {
+                println!("Fetched highlights for: {}", title);
+            }
+        }
+        if !dry_run {
+            write_highlight_file(source, link, &markdown)?;
         }
     }
 

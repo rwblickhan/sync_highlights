@@ -4,17 +4,11 @@ mod models;
 mod sync;
 
 use clap::Parser;
-use cli::{Cli, Commands};
+use cli::Cli;
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
-
-    match cli.command {
-        Commands::Import { source, dry_run } => import::import(&source, dry_run),
-        Commands::Sync {
-            source,
-            target,
-            dry_run,
-        } => sync::sync(&source, &target, dry_run),
-    }
+    let tmp = tempfile::tempdir()?;
+    import::import(tmp.path(), cli.dry_run, cli.verbose)?;
+    sync::sync(tmp.path(), &cli.target, cli.dry_run, cli.verbose)
 }

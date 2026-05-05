@@ -5,7 +5,7 @@ use std::fs;
 use std::path::Path;
 use walkdir::WalkDir;
 
-pub fn sync(source: &Path, target: &Path, dry_run: bool) -> Result<()> {
+pub fn sync(source: &Path, target: &Path, dry_run: bool, verbose: bool) -> Result<()> {
     let matter = Matter::<YAML>::new();
 
     let mut existing_urls = Vec::new();
@@ -42,11 +42,13 @@ pub fn sync(source: &Path, target: &Path, dry_run: bool) -> Result<()> {
                     let target_path = target.join(rel_path);
 
                     if dry_run {
-                        println!(
-                            "Would copy {} to {}",
-                            entry.path().display(),
-                            target_path.display()
-                        );
+                        if verbose {
+                            println!(
+                                "Would copy {} to {}",
+                                entry.path().display(),
+                                target_path.display()
+                            );
+                        }
                     } else {
                         if let Some(parent) = target_path.parent() {
                             fs::create_dir_all(parent)?;
@@ -54,11 +56,7 @@ pub fn sync(source: &Path, target: &Path, dry_run: bool) -> Result<()> {
                         fs::copy(entry.path(), &target_path).with_context(|| {
                             format!("Failed to copy to {}", target_path.display())
                         })?;
-                        println!(
-                            "Copied {} to {}",
-                            entry.path().display(),
-                            target_path.display()
-                        );
+                        println!("Copied {}", target_path.display());
                     }
                 }
             }
